@@ -15,6 +15,7 @@ export {
   getNodeScroll,
   isHTMLElement,
   isElement,
+  getParentNode,
 } from '@vkontakte/vkui-floating-ui/utils/dom';
 
 export { canUseDOM, canUseEventListeners, onDOMLoaded } from '@vkontakte/vkjs';
@@ -311,3 +312,8 @@ export function getVisualViewport(win: Window): VisualViewport {
   result.height = win.innerHeight; // note: вызывает reflow в отличии от visualViewport
   return result;
 }
+
+export const hasSelectionWithRangeType = (node: unknown) => {
+  const selection = getWindow(node).getSelection();
+  return selection ? selection.type === 'Range' : false;
+};
