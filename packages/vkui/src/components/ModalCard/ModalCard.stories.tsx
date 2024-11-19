@@ -1,7 +1,6 @@
 import * as React from 'react';
 import type { Meta, StoryObj } from '@storybook/react';
 import { Icon56MoneyTransferOutline, Icon56NotificationOutline } from '@vkontakte/icons';
-import { ModalWrapper } from '../../storybook/ModalWrapper';
 import { CanvasFullLayout, DisableCartesianParam } from '../../storybook/constants';
 import { getAvatarUrl } from '../../testing/mock';
 import { Avatar } from '../Avatar/Avatar';
@@ -11,142 +10,188 @@ import { Image } from '../Image/Image';
 import { Spacing } from '../Spacing/Spacing';
 import { Textarea } from '../Textarea/Textarea';
 import { UsersStack } from '../UsersStack/UsersStack';
-import { ModalCard, type ModalCardProps } from './ModalCard';
+import { ModalCard } from './ModalCard';
+import type { ModalCardProps } from './types';
 
 const story: Meta<ModalCardProps> = {
   title: 'Modals/ModalCard',
   component: ModalCard,
-  parameters: { ...CanvasFullLayout, ...DisableCartesianParam },
+  parameters: {
+    ...CanvasFullLayout,
+    ...DisableCartesianParam,
+    background: 'linear-gradient(blue, pink)',
+  },
 };
 
 export default story;
 
 type Story = StoryObj<ModalCardProps>;
 
-const MODAL_CARD_MONEY_SEND = 'money-send';
-const MODAL_CARD_APP_TO_MENU = 'app-to-menu';
-const MODAL_CARD_ABOUT = 'say-about';
-const MODAL_CARD_NOTIFICATIONS = 'notifications';
-const MODAL_CARD_CHAT_INVITE = 'chat-invite';
-
 export const SimpleCard: Story = {
-  render: () => (
-    <ModalWrapper modalId={MODAL_CARD_MONEY_SEND}>
-      <ModalCard
-        id={MODAL_CARD_MONEY_SEND}
-        icon={<Icon56MoneyTransferOutline />}
-        title="Отправляйте деньги друзьям, используя банковскую карту"
-        description="Номер карты получателя не нужен — он сам решит, куда зачислить средства."
-        actions={
-          <Button size="l" mode="primary" stretched>
-            Попробовать
-          </Button>
-        }
-      />
-    </ModalWrapper>
-  ),
+  render: function Render() {
+    const [open, setOpen] = React.useState(true);
+    const handleClose = () => setOpen(false);
+    return (
+      <>
+        <Button appearance="overlay" onClick={() => setOpen(true)}>
+          Открыть
+        </Button>
+        <ModalCard
+          open={open}
+          onClose={handleClose}
+          icon={<Icon56MoneyTransferOutline />}
+          title="Отправляйте деньги друзьям, используя банковскую карту"
+          description="Номер карты получателя не нужен — он сам решит, куда зачислить средства."
+          actions={
+            <Button size="l" mode="primary" stretched onClick={() => setOpen(false)}>
+              Попробовать
+            </Button>
+          }
+        />
+      </>
+    );
+  },
 };
 
 export const CardWithAvatar: Story = {
-  render: () => (
-    <ModalWrapper modalId={MODAL_CARD_APP_TO_MENU}>
-      <ModalCard
-        id={MODAL_CARD_APP_TO_MENU}
-        icon={<Image borderRadius="l" src={getAvatarUrl('app_zagadki', 200)} size={72} />}
-        title="Добавить игру «Загадки детства» в меню?"
-        description="Игра появится под списком разделов на экране меню и будет всегда под рукой."
-        actions={
-          <Button size="l" mode="primary" stretched>
-            Добавить в меню
-          </Button>
-        }
-      />
-    </ModalWrapper>
-  ),
+  render: function Render() {
+    const [open, setOpen] = React.useState(true);
+    const handleClose = () => setOpen(false);
+    return (
+      <>
+        <Button appearance="overlay" onClick={() => setOpen(true)}>
+          Открыть
+        </Button>
+        <ModalCard
+          open={open}
+          onClose={handleClose}
+          icon={<Image borderRadius="l" src={getAvatarUrl('app_zagadki', 200)} size={72} />}
+          title="Добавить игру «Загадки детства» в меню?"
+          description="Игра появится под списком разделов на экране меню и будет всегда под рукой."
+          actions={
+            <Button size="l" mode="primary" stretched onClick={() => setOpen(false)}>
+              Добавить в меню
+            </Button>
+          }
+        />
+      </>
+    );
+  },
 };
 
 export const CardWithTextArea: Story = {
-  render: () => (
-    <ModalWrapper modalId={MODAL_CARD_ABOUT}>
-      <ModalCard
-        id={MODAL_CARD_ABOUT}
-        title="Расскажите о себе"
-        actions={
-          <Button size="l" mode="primary" stretched>
-            Сохранить
-          </Button>
-        }
-      >
-        <Textarea defaultValue="В Грузии" />
-      </ModalCard>
-    </ModalWrapper>
-  ),
+  render: function Render() {
+    const [open, setOpen] = React.useState(true);
+    const handleClose = () => setOpen(false);
+    return (
+      <>
+        <Button appearance="overlay" onClick={() => setOpen(true)}>
+          Открыть
+        </Button>
+        <ModalCard
+          open={open}
+          onClose={handleClose}
+          title="Расскажите о себе"
+          actions={
+            <Button size="l" mode="primary" stretched onClick={() => setOpen(false)}>
+              Сохранить
+            </Button>
+          }
+        >
+          <Spacing size="m" />
+          <Textarea defaultValue="В Грузии" />
+        </ModalCard>
+      </>
+    );
+  },
 };
 
 export const CardWithMultipleButtons: Story = {
-  render: () => (
-    <ModalWrapper modalId={MODAL_CARD_NOTIFICATIONS}>
-      <ModalCard
-        id={MODAL_CARD_NOTIFICATIONS}
-        icon={<Icon56NotificationOutline />}
-        title="Приложение запрашивает разрешение на отправку Вам уведомлений"
-        actions={
-          <ButtonGroup stretched>
-            <Button key="deny" size="l" mode="secondary" stretched>
-              Запретить
-            </Button>
-            <Button key="allow" size="l" mode="primary" stretched>
-              Разрешить
-            </Button>
-          </ButtonGroup>
-        }
-      />
-    </ModalWrapper>
-  ),
+  render: function Render() {
+    const [open, setOpen] = React.useState(true);
+    const handleClose = () => setOpen(false);
+    return (
+      <>
+        <Button appearance="overlay" onClick={() => setOpen(true)}>
+          Открыть
+        </Button>
+        <ModalCard
+          open={open}
+          onClose={handleClose}
+          icon={<Icon56NotificationOutline />}
+          title="Приложение запрашивает разрешение на отправку Вам уведомлений"
+          actions={
+            <ButtonGroup stretched>
+              <Button key="deny" size="l" mode="secondary" stretched onClick={() => setOpen(false)}>
+                Запретить
+              </Button>
+              <Button key="allow" size="l" mode="primary" stretched onClick={() => setOpen(false)}>
+                Разрешить
+              </Button>
+            </ButtonGroup>
+          }
+        />
+      </>
+    );
+  },
 };
 
 export const CardWithComplexContent: Story = {
-  render: () => (
-    <ModalWrapper modalId={MODAL_CARD_CHAT_INVITE}>
-      <ModalCard
-        id={MODAL_CARD_CHAT_INVITE}
-        icon={<Avatar src={getAvatarUrl('chat_basketball', 200)} size={72} />}
-        title="Баскетбол на выходных"
-        titleComponent="h2"
-        description="Приглашение в беседу"
-        descriptionComponent="span"
-        actions={
-          <React.Fragment>
-            <Spacing size={8} />
-            <ButtonGroup gap="s" mode="vertical" stretched>
-              <Button key="join" size="l" mode="primary" stretched>
-                Присоединиться
-              </Button>
-              <Button key="copy" size="l" mode="secondary" stretched>
-                Скопировать приглашение
-              </Button>
-            </ButtonGroup>
-          </React.Fragment>
-        }
-      >
-        <Spacing size={20} />
-        <UsersStack
-          photos={[
-            getAvatarUrl('user_mm'),
-            getAvatarUrl('user_ilyagrshn'),
-            getAvatarUrl('user_lihachyov'),
-            getAvatarUrl('user_wayshev'),
-            getAvatarUrl('user_arthurstam'),
-            getAvatarUrl('user_xyz'),
-          ]}
-          size="l"
-          visibleCount={3}
-          avatarsPosition="block-start"
+  render: function Render() {
+    const [open, setOpen] = React.useState(true);
+    const handleClose = () => setOpen(false);
+    return (
+      <>
+        <Button appearance="overlay" onClick={() => setOpen(true)}>
+          Открыть
+        </Button>
+        <ModalCard
+          open={open}
+          onClose={handleClose}
+          icon={<Avatar src={getAvatarUrl('chat_basketball', 200)} size={72} />}
+          title="Баскетбол на выходных"
+          titleComponent="h2"
+          description="Приглашение в беседу"
+          descriptionComponent="span"
+          actions={
+            <React.Fragment>
+              <Spacing size={8} />
+              <ButtonGroup gap="s" mode="vertical" stretched>
+                <Button key="join" size="l" mode="primary" stretched onClick={() => setOpen(false)}>
+                  Присоединиться
+                </Button>
+                <Button
+                  key="copy"
+                  size="l"
+                  mode="secondary"
+                  stretched
+                  onClick={() => setOpen(false)}
+                >
+                  Скопировать приглашение
+                </Button>
+              </ButtonGroup>
+            </React.Fragment>
+          }
         >
-          Алексей, Илья, Михаил
-          <br />и ещё 3 человека
-        </UsersStack>
-      </ModalCard>
-    </ModalWrapper>
-  ),
+          <Spacing size={20} />
+          <UsersStack
+            photos={[
+              getAvatarUrl('user_mm'),
+              getAvatarUrl('user_ilyagrshn'),
+              getAvatarUrl('user_lihachyov'),
+              getAvatarUrl('user_wayshev'),
+              getAvatarUrl('user_arthurstam'),
+              getAvatarUrl('user_xyz'),
+            ]}
+            size="l"
+            visibleCount={3}
+            avatarsPosition="block-start"
+          >
+            Алексей, Илья, Михаил
+            <br />и ещё 3 человека
+          </UsersStack>
+        </ModalCard>
+      </>
+    );
+  },
 };

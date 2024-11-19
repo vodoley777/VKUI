@@ -2,17 +2,19 @@ import * as React from 'react';
 import type { Meta, StoryObj } from '@storybook/react';
 import { ModalWrapper } from '../../storybook/ModalWrapper';
 import { CanvasFullLayout, DisableCartesianParam } from '../../storybook/constants';
+import { multiplyText } from '../../testing/mock';
 import { Button } from '../Button/Button';
+import { Div } from '../Div/Div';
 import { Group } from '../Group/Group';
 import { Input } from '../Input/Input';
 import { ModalPage } from '../ModalPage/ModalPage';
 import { Placeholder } from '../Placeholder/Placeholder';
+import { SimpleCell } from '../SimpleCell/SimpleCell';
 import { Spinner } from '../Spinner/Spinner';
 import { SplitCol } from '../SplitCol/SplitCol';
 import { SplitLayout } from '../SplitLayout/SplitLayout';
-import { ModalRoot } from './ModalRootAdaptive';
+import { ModalRoot } from './ModalRoot';
 import type { ModalRootProps } from './types';
-import { useModalRootContext } from './useModalRootContext';
 
 const story: Meta<ModalRootProps> = {
   title: 'Modals/ModalRoot',
@@ -28,10 +30,85 @@ const MODAL_PAGE_DYNAMIC = 'modal-page-dynamic';
 const MODAL_ROOT_WITH_AUTO_FOCUS = 'modal-root-with-auto-focus';
 const MODAL_PAGE_WITH_AUTO_FOCUS = 'modal-page-with-auto-focus';
 
+const modalsPayload = {
+  1: {
+    id: 1 as const,
+    title: 'Длинный текст',
+    subtitle: 'settlingHeight={50}',
+  },
+  2: {
+    id: 2 as const,
+    title: 'Короткий текст',
+    subtitle: 'settlingHeight={50}',
+  },
+  3: {
+    id: 3 as const,
+    title: 'Длинный текст',
+    subtitle: 'dynamicContentHeight',
+  },
+  4: {
+    id: 4 as const,
+    title: 'Короткий текст',
+    subtitle: 'dynamicContentHeight',
+  },
+};
+const modalIds = [1, 2, 3, 4] as const;
+
+export const Managing: Story = {
+  parameters: { centered: false },
+  render: function Render() {
+    const [activeModal, setActiveModal] = React.useState<string | null>(null);
+
+    const handleClick = (event: React.MouseEvent<HTMLButtonElement>) => {
+      const { id } = event.currentTarget.dataset;
+      if (id) {
+        setActiveModal(id);
+      }
+    };
+
+    const renderNavigationCell = (i: 1 | 2 | 3 | 4) => (
+      <SimpleCell
+        key={i}
+        chevron="always"
+        data-id={modalsPayload[i].id}
+        before={modalsPayload[i].id}
+        subtitle={modalsPayload[i].subtitle}
+        onClick={handleClick}
+        disabled={activeModal === String(i)}
+      >
+        {modalsPayload[i].title}
+      </SimpleCell>
+    );
+
+    return (
+      <>
+        {modalIds.map(renderNavigationCell)}
+        <ModalRoot activeModal={activeModal} onClose={() => setActiveModal(null)}>
+          <ModalPage id="1" settlingHeight={50}>
+            {modalIds.map(renderNavigationCell)}
+            <Div>{multiplyText('Lorem ipsum', 400)}</Div>
+          </ModalPage>
+          <ModalPage id="2" settlingHeight={50}>
+            {modalIds.map(renderNavigationCell)}
+            <Div>{multiplyText('Lorem ipsum', 5)}</Div>
+          </ModalPage>
+          <ModalPage id="3" dynamicContentHeight>
+            {modalIds.map(renderNavigationCell)}
+            <Div>{multiplyText('Lorem ipsum', 400)}</Div>
+          </ModalPage>
+          <ModalPage id="4" dynamicContentHeight>
+            {modalIds.map(renderNavigationCell)}
+            <Div>{multiplyText('Lorem ipsum', 5)}</Div>
+          </ModalPage>
+        </ModalRoot>
+      </>
+    );
+  },
+};
+
 export const ModalDynamicHeight: Story = {
   render: function Render() {
     const [isLoading, setIsLoading] = React.useState(true);
-    const { updateModalHeight } = useModalRootContext();
     const timer = React.useRef<ReturnType<typeof setTimeout>>();
 
     React.useEffect(() => {
@@ -43,13 +120,6 @@ export const ModalDynamicHeight: Story = {
         clearTimeout(timer.current);
       };
     }, []);
-
-    // После установки стейта и перерисовки компонента SelectModal сообщим ModalRoot об изменениях
-    React.useEffect(() => {
-      if (!isLoading) {
-        updateModalHeight();
-      }
-    }, [isLoading, updateModalHeight]);
 
     return (
       <ModalWrapper modalId={MODAL_PAGE_DYNAMIC}>

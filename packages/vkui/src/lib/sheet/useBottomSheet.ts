@@ -12,13 +12,13 @@ import {
 import { noop } from '@vkontakte/vkjs';
 import { useStableCallback } from '../../hooks/useStableCallback';
 import { useIsomorphicLayoutEffect } from '../useIsomorphicLayoutEffect';
-import { BottomSheetController } from './controllers/BottomSheetController';
+import { BottomSheetController, type InitialSnapPoint } from './controllers/BottomSheetController';
 import { CSSTransitionController } from './controllers/CSSTransitionController';
 
 export type UseBottomSheetOptions = {
   sheetCSSProperty: string;
   backdropCSSProperty: string;
-  initialSnapPoint?: number | 'auto';
+  initialSnapPoint?: InitialSnapPoint;
   blocked?: boolean;
   onDismiss?: VoidFunction;
 };
@@ -27,6 +27,7 @@ export type UseBottomSheetHandlers = {
   onTouchStart: UIEventHandler<HTMLElement>;
   onTouchMove: UIEventHandler<HTMLElement>;
   onTouchEnd: UIEventHandler<HTMLElement>;
+  onTouchCancel: UIEventHandler<HTMLElement>;
   onMouseDown: UIEventHandler<HTMLElement>;
   onMouseMove: UIEventHandler<HTMLElement>;
   onMouseUp: UIEventHandler<HTMLElement>;
@@ -137,14 +138,18 @@ export const useBottomSheet = (
       if (bsController) {
         bsController.init(initialSnapPoint);
       }
+    },
+    [initialSnapPoint, bsController],
+  );
 
-      return function destroy() {
+  useIsomorphicLayoutEffect(
+    () =>
+      function unmount() {
         if (bsController) {
           bsController.destroy();
         }
-      };
-    },
-    [initialSnapPoint, bsController],
+      },
+    [bsController],
   );
 
   return [
@@ -159,6 +164,7 @@ export const useBottomSheet = (
           onTouchStart: onPanStart,
           onTouchMove: onPanMove,
           onTouchEnd: onPanEnd,
+          onTouchCancel: onPanEnd,
           onMouseDown: onPanStart,
           onMouseMove: onPanMove,
           onMouseUp: onPanEnd,

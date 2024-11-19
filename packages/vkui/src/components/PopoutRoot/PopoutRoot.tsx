@@ -15,16 +15,6 @@ export const PopoutRootPopout = ({
   <div className={classNames(styles.popout, className)} {...restProps} />
 );
 
-/**
- * @private
- */
-export const PopoutRootModal = ({
-  className,
-  ...restProps
-}: React.HTMLAttributes<HTMLDivElement>): React.ReactNode => (
-  <div className={classNames(styles.modal, className)} {...restProps} />
-);
-
 export interface PopoutRootProps extends HTMLAttributesWithRootRef<HTMLDivElement> {
   popout?: React.ReactNode;
   modal?: React.ReactNode;
@@ -44,7 +34,7 @@ export const PopoutRoot = ({
       {children}
       <AppRootPortal>
         {!!popout && <PopoutRootPopout>{popout}</PopoutRootPopout>}
-        {!!modal && <PopoutRootModal>{modal}</PopoutRootModal>}
+        {!!modal && modal}
       </AppRootPortal>
     </RootComponent>
   );

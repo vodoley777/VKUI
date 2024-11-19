@@ -2,7 +2,7 @@ import { noop } from '@vkontakte/vkjs';
 import { clamp } from '../../../helpers/math';
 import { inRange } from '../../../helpers/range';
 import { rubberbandIfOutOfBounds } from '../../animation';
-import { hasSelectionWithRangeType } from '../../dom';
+import { getNearestOverflowAncestor, hasSelectionWithRangeType } from '../../dom';
 import { UIPanGestureRecognizer } from '../../touch/UIPanGestureRecognizer';
 import {
   BLOCK_SHEET_BEHAVIOR_DATA_ATTRIBUTE_KEY,
@@ -12,6 +12,8 @@ import {
   SNAP_POINT_SAFE_RANGE,
 } from '../constants';
 import type { CSSTransitionController } from './CSSTransitionController';
+
+export type InitialSnapPoint = 'auto' | number;
 
 export type SnapPointDetents = [number, number] | [number, number, number];
 
@@ -30,7 +32,7 @@ export type BottomSheetControllerOptions = {
 
 export class BottomSheetController {
   static parseInitialSnapPoint(
-    initialSnapPoint: 'auto' | number = SNAP_POINT_DETENTS.MEDIUM,
+    initialSnapPoint: InitialSnapPoint = SNAP_POINT_DETENTS.MEDIUM,
   ): BottomSheetControllerSnapPointData {
     if (initialSnapPoint === 'auto') {
       return {
@@ -74,7 +76,7 @@ export class BottomSheetController {
     this.backdropTransitionController = backdropTransitionController;
   }
 
-  init(initialSnapPoint?: number | 'auto') {
+  init(initialSnapPoint?: InitialSnapPoint) {
     this.isInitialized = true;
 
     const { unit, currentSnapPoint, snapPointDetents } =
@@ -91,15 +93,14 @@ export class BottomSheetController {
     this.sheetTransitionController.cleanup();
     this.backdropTransitionController?.cleanup();
 
-    this.disableScrollBouncingDispose();
-    this.disableScrollBouncingDispose = noop;
+    this.disableVerticalScrollBouncingDispose();
+    this.disableVerticalScrollBouncingDispose = noop;
   }
 
   panStart(event: UIEvent) {
     if (
       !this.isInitialized ||
       this.panState !== 'idle' ||
-      event.defaultPrevented ||
       hasSelectionWithRangeType(event.target)
     ) {
       return;
@@ -116,26 +117,34 @@ export class BottomSheetController {
         this.panGestureRecognizer.setInitialTimeOnce();
         this.panGestureRecognizer.setEndCoords(event);
 
-        if (
-          event.defaultPrevented ||
-          this.shouldBePreventedIfPanGestureDistanceIsNotAsExpected() ||
-          this.shouldBePreventedIfPanGestureDirectionIsNotVertical() ||
-          // Может быть `null` если нажали на Shadow DOM.
-          this.pannedEl === null ||
-          this.shouldBePreventedIfPannedElIsExternal(this.pannedEl) ||
-          this.shouldBePreventedByDataAttribute(this.pannedEl) ||
-          this.shouldBePreventedIfIsScrolled(this.pannedEl)
-        ) {
+        if (this.preventUntilPanGestureBecomesExpected()) {
+          return;
+        }
+
+        if (this.preventImmediatelyIfPannedElIsNotValid()) {
+          this.panState = 'idle';
+          return;
+        }
+
+        if (this.preventUntilVerticalScrollingOnSheetScrollElBecomesExpected()) {
+          return;
+        }
+
+        if (this.preventImmediatelyIfVerticalScrollingOnPannedElIsScrolled()) {
+          this.panState = 'idle';
           return;
         }
 
         this.panState = 'moving';
         this.panGestureRecognizer.setStartCoords(event);
 
-        this.disableScrollBouncingDispose = BottomSheetController.disableScrollBouncing(
-          this.sheetScrollEl,
-        );
         this.sheetHeight = this.sheetEl.offsetHeight;
+
+        this.disableVerticalScrollBouncingDispose =
+          BottomSheetController.disableVerticalScrollBouncingIfNeeded(
+            this.sheetScrollEl,
+            this.pannedEl,
+          );
 
         if (this.isDynamicSnapPoint) {
           this.currentSnapPoint = this.sheetHeight;
@@ -173,8 +182,8 @@ export class BottomSheetController {
     this.panState = 'idle';
     this.panGestureRecognizer.reset();
 
-    this.disableScrollBouncingDispose();
-    this.disableScrollBouncingDispose = noop;
+    this.disableVerticalScrollBouncingDispose();
+    this.disableVerticalScrollBouncingDispose = noop;
   }
 
   private isInitialized = false;
@@ -189,7 +198,7 @@ export class BottomSheetController {
   private get isDynamicSnapPoint() {
     return this.unit === 'px';
   }
-  private disableScrollBouncingDispose = noop;
+  private disableVerticalScrollBouncingDispose = noop;
   private readonly sheetScrollEl: HTMLElement | null;
   private readonly sheetTransitionController: CSSTransitionController<string>;
   private readonly backdropTransitionController: CSSTransitionController | null;
@@ -204,6 +213,7 @@ export class BottomSheetController {
     if (nextSnapPoint <= SNAP_POINT_DETENTS.MIN) {
       this.sheetTransitionController.enableTransition();
       this.backdropTransitionController?.enableTransition();
+      this.panState = 'idle';
       this.onDismiss();
       return;
     }
@@ -260,25 +270,29 @@ export class BottomSheetController {
     return closestSnapPointByDirection;
   }
 
-  private shouldBePreventedIfPanGestureDistanceIsNotAsExpected() {
-    return this.panGestureRecognizer.distance() < DRAG_THRESHOLDS.DISTANCE_FOR_MOVING_START;
+  private preventUntilPanGestureBecomesExpected() {
+    return (
+      this.panGestureRecognizer.direction().axis === 'x' ||
+      this.panGestureRecognizer.distance() < DRAG_THRESHOLDS.DISTANCE_FOR_MOVING_START
+    );
   }
 
-  private shouldBePreventedIfPanGestureDirectionIsNotVertical() {
-    return this.panGestureRecognizer.direction().axis === 'x';
+  private preventImmediatelyIfPannedElIsNotValid() {
+    return (
+      this.pannedEl === null ||
+      // Элемент со специальным атрибутом
+      this.pannedEl.closest(`[${BLOCK_SHEET_BEHAVIOR_DATA_ATTRIBUTE_KEY}=true]`) !== null || // eslint-disable-line no-restricted-properties
+      // Элемент за пределами панели.
+      !this.sheetEl.contains(this.pannedEl)
+    );
   }
 
-  private shouldBePreventedIfPannedElIsExternal(pannedEl: HTMLElement) {
-    return !this.sheetEl.contains(pannedEl);
-  }
-
-  private shouldBePreventedByDataAttribute(pannedEl: HTMLElement) {
-    // eslint-disable-next-line no-restricted-properties
-    return pannedEl.closest(`[${BLOCK_SHEET_BEHAVIOR_DATA_ATTRIBUTE_KEY}=true]`);
-  }
-
-  private shouldBePreventedIfIsScrolled(pannedEl: HTMLElement) {
-    if (this.sheetScrollEl === null || !this.sheetScrollEl.contains(pannedEl)) {
+  private preventUntilVerticalScrollingOnSheetScrollElBecomesExpected() {
+    if (
+      this.sheetScrollEl === null ||
+      !this.sheetScrollEl.contains(this.pannedEl) ||
+      this.sheetScrollEl.scrollHeight <= this.sheetScrollEl.clientHeight
+    ) {
       return false;
     }
 
@@ -290,14 +304,40 @@ export class BottomSheetController {
     return true;
   }
 
-  private static disableScrollBouncing(node: HTMLElement | null) {
-    if (node === null) {
-      return noop;
+  private preventImmediatelyIfVerticalScrollingOnPannedElIsScrolled() {
+    if (this.pannedEl === null || this.sheetScrollEl === this.pannedEl) {
+      return false;
     }
-    node.style.setProperty('overflow', 'hidden');
-    return function dispose() {
-      node.style.removeProperty('overflow');
-    };
+
+    const overflowAncestor = getNearestOverflowAncestor(this.pannedEl, this.sheetEl);
+
+    if (
+      overflowAncestor === null ||
+      this.sheetScrollEl === overflowAncestor ||
+      overflowAncestor.scrollHeight <= overflowAncestor.clientHeight
+    ) {
+      return false;
+    }
+
+    return overflowAncestor.scrollTop !== 0;
+  }
+
+  private static disableVerticalScrollBouncingIfNeeded(
+    sheetScrollEl: HTMLElement | null,
+    targetEl: HTMLElement | null,
+  ) {
+    if (
+      sheetScrollEl !== null &&
+      sheetScrollEl.scrollTop <= 0 &&
+      sheetScrollEl.contains(targetEl) &&
+      sheetScrollEl.scrollHeight > sheetScrollEl.clientHeight
+    ) {
+      sheetScrollEl.style.setProperty('overflow-y', 'hidden');
+      return function dispose() {
+        sheetScrollEl.style.removeProperty('overflow-y');
+      };
+    }
+    return noop;
   }
 
   private static getClosestSnapPointByDirection(
