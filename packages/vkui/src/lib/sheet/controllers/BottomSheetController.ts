@@ -297,8 +297,10 @@ export class BottomSheetController {
     }
 
     if (this.sheetScrollEl.scrollTop === 0) {
-      const panDirection = this.panGestureRecognizer.direction();
-      return panDirection.direction === -1;
+      return (
+        this.panGestureRecognizer.direction().direction === -1 &&
+        BottomSheetController.isLastSnapPointDetents(this.snapPointDetents, this.currentSnapPoint)
+      );
     }
 
     return true;
@@ -319,7 +321,9 @@ export class BottomSheetController {
       return false;
     }
 
-    return overflowAncestor.scrollTop !== 0;
+    return (
+      overflowAncestor.scrollTop !== 0 || this.panGestureRecognizer.direction().direction === -1
+    );
   }
 
   private static disableVerticalScrollBouncingIfNeeded(
@@ -338,6 +342,13 @@ export class BottomSheetController {
       };
     }
     return noop;
+  }
+
+  private static isLastSnapPointDetents(
+    snapPointDetents: SnapPointDetents,
+    currentY: number,
+  ): boolean {
+    return currentY === snapPointDetents[snapPointDetents.length - 1];
   }
 
   private static getClosestSnapPointByDirection(
