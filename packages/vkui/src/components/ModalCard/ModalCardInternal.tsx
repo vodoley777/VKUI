@@ -119,8 +119,8 @@ export const ModalCardInternal = ({
       visible={open}
       onClick={
         closable
-          ? function handleBackdropClick() {
-              onClose?.('click-overlay');
+          ? function handleBackdropClick(event) {
+              onClose('click-overlay', event);
             }
           : undefined
       }

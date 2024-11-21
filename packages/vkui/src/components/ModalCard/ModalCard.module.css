@@ -32,27 +32,26 @@
     inset-block-end: 0;
     margin-block-end: var(--vkui_internal_ModalCard--safeAreaInsetBottom);
     transform: translate3d(0, calc(100% - var(--vkui_internal_ModalCard--translateY)), 0);
-    transition: transform var(--vkui--animation_duration_l) var(--vkui--animation_easing_platform);
+    transition: transform 0.4s var(--vkui_internal--spring-easing);
   }
 
   .hostStateEnter {
     transform: translate3d(0, 100%, 0);
-    transition-property: none;
+    transition: none;
   }
 
   .hostStateEntering {
-    transition-property: transform;
-    transition-delay: 0.2s;
+    transition: transform 0.5s var(--vkui_internal--slide-easing) 0.2s;
   }
 
   .hostStateExiting {
     transform: translate3d(0, 100%, 0);
-    transition-property: transform;
+    transition: transform 0.2s ease;
   }
 
   .hostStateExited {
     transform: translate3d(0, 100%, 0);
-    transition-property: transform;
+    transition: none;
   }
 }
 /* Desktop */

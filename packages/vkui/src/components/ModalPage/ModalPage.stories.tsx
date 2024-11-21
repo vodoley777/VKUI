@@ -1,6 +1,6 @@
 /* eslint-disable no-console */
-import { useState } from 'react';
 import * as React from 'react';
+import { useArgs, useCallback, useState } from '@storybook/preview-api';
 import type { Meta, StoryObj } from '@storybook/react';
 import { Icon24Dismiss, Icon56MoneyTransferOutline } from '@vkontakte/icons';
 import { useAdaptivityConditionalRender } from '../../hooks/useAdaptivityConditionalRender';
@@ -68,43 +68,39 @@ const IosCloseButton = ({ className, onClick }: React.ComponentProps<'div'>) => 
 };
 
 export const DynamicModalPage: Story = {
-  render: function Render() {
+  args: { id: 'modal-page', open: true },
+  render: function Render(props) {
+    const [, updateArgs] = useArgs();
+    const close = () => updateArgs({ open: false });
+
     const platform = usePlatform();
     const { sizeX } = useAdaptivityConditionalRender();
-    const [expanded, setExpanded] = React.useState(false);
-    const toggle = React.useCallback(() => setExpanded(!expanded), [expanded]);
-
-    const [open, setOpen] = React.useState(true);
-    const handleButtonClick = () => {
-      setOpen(false);
-    };
+    const [expanded, setExpanded] = useState(false);
+    const toggle = useCallback(() => setExpanded(!expanded), [expanded]);
 
     return (
       <ModalPage
-        open={open}
+        {...props}
         dynamicContentHeight
         header={
           <ModalPageHeader
             before={
               sizeX.compact &&
               platform === 'android' && (
-                <AndroidCloseButton
-                  className={sizeX.compact.className}
-                  onClick={handleButtonClick}
-                />
+                <AndroidCloseButton className={sizeX.compact.className} onClick={close} />
               )
             }
             after={
               sizeX.compact &&
               platform === 'ios' && (
-                <IosCloseButton className={sizeX.compact.className} onClick={handleButtonClick} />
+                <IosCloseButton className={sizeX.compact.className} onClick={close} />
               )
             }
           >
             Dynamic modal
           </ModalPageHeader>
         }
-        onClose={() => setOpen(false)}
+        onClose={() => updateArgs({ open: false })}
       >
         <Group>
           <CellButton onClick={toggle}>{expanded ? 'collapse' : 'expand'}</CellButton>
@@ -116,18 +112,17 @@ export const DynamicModalPage: Story = {
 };
 
 export const FullscreenModalPage: Story = {
-  render: function Render() {
+  args: { id: 'modal-page', open: true },
+  render: function Render(props) {
+    const [, updateArgs] = useArgs();
+    const close = () => updateArgs({ open: false });
+
     const platform = usePlatform();
     const { sizeX } = useAdaptivityConditionalRender();
 
-    const [open, setOpen] = React.useState(true);
-    const handleButtonClick = () => {
-      setOpen(false);
-    };
-
     return (
       <ModalPage
-        open={open}
+        {...props}
         settlingHeight={100}
         hideCloseButton={platform === 'ios'}
         header={
@@ -135,18 +130,15 @@ export const FullscreenModalPage: Story = {
             before={
               sizeX.compact &&
               platform === 'android' && (
-                <AndroidCloseButton
-                  className={sizeX.compact.className}
-                  onClick={handleButtonClick}
-                />
+                <AndroidCloseButton className={sizeX.compact.className} onClick={close} />
               )
             }
-            after={platform === 'ios' && <IosCloseButton onClick={handleButtonClick} />}
+            after={platform === 'ios' && <IosCloseButton onClick={close} />}
           >
             @{randomUser.screen_name}
           </ModalPageHeader>
         }
-        onClose={() => setOpen(false)}
+        onClose={() => updateArgs({ open: false })}
       >
         <Gradient mode="tint">
           <Placeholder
@@ -169,33 +161,30 @@ export const FullscreenModalPage: Story = {
 };
 
 export const ModalPageWithFilters: Story = {
-  render: function Render() {
+  args: { id: 'modal-page', open: true },
+  render: function Render(props) {
+    const [, updateArgs] = useArgs();
+    const close = () => updateArgs({ open: false });
+
     const [dateOfBirth, setDateOfBirth] = useState<Date | undefined>(new Date(1901, 0, 1));
     const { sizeX } = useAdaptivityConditionalRender();
-    const [open, setOpen] = React.useState(true);
-    const handleButtonClick = () => {
-      setOpen(false);
-    };
 
     return (
       <ModalPage
-        open={open}
+        {...props}
         header={
           <ModalPageHeader
             before={
               sizeX.compact && (
-                <AndroidCloseButton
-                  className={sizeX.compact.className}
-                  onClick={handleButtonClick}
-                />
+                <AndroidCloseButton className={sizeX.compact.className} onClick={close} />
               )
             }
-            after={<DoneButton onClick={handleButtonClick} />}
+            after={<DoneButton onClick={close} />}
           >
             Фильтры
           </ModalPageHeader>
         }
-        onClose={() => setOpen(false)}
+        onClose={() => updateArgs({ open: false })}
       >
         <Group>
           <FormItem top="Страна">
@@ -256,22 +245,23 @@ export const ModalPageWithFilters: Story = {
 const mockData = getRandomUsers(30);
 
 export const Sandbox: Story = {
+  args: { id: 'modal-page', open: true },
   render: function Render(props) {
     const platform = usePlatform();
     const { sizeX } = useAdaptivityConditionalRender();
-    const [open, setOpen] = React.useState(true);
+    const [, updateArgs] = useArgs();
 
     const handleModalClose = (reason: 'close-custom' | ModalPageCloseReason) => {
       console.log('reason', reason);
-      setOpen(false);
+      updateArgs({ open: false });
     };
 
     return (
       <>
-        <Button onClick={() => setOpen((prev) => !prev)}>Открыть</Button>
+        <Button onClick={() => updateArgs({ open: false })}>Открыть</Button>
         <ModalPage
           id="test"
-          open={open}
+          {...props}
           header={
             <ModalPageHeader
               before={

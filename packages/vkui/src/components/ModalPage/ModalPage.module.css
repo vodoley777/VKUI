@@ -69,8 +69,6 @@
 @media (--viewWidth-smallTabletMinus) {
   .document {
     --vkui_internal_ModalPageDocument--snapPoint: auto;
-    --vkui_internal_ModalPageDocument--slide-easing: cubic-bezier(0.16, 1, 0.3, 1);
-    --vkui_internal_ModalPageDocument--spring-easing: cubic-bezier(0.22, 1, 0.6, 1.03);
     --vkui_internal_ModalPageDocument--safeAreaInsetBottom: var(
       --vkui_internal--safe_area_inset_bottom
     );
@@ -84,7 +82,7 @@
     pointer-events: auto;
     touch-action: pan-y;
     transform: translate3d(0, 0, 0);
-    transition: block-size 0.4s var(--vkui_internal_ModalPageDocument--spring-easing);
+    transition: block-size 0.4s var(--vkui_internal--spring-easing);
   }
 
   .documentStateEnter {
@@ -93,7 +91,7 @@
 
   .documentStateEntering {
     transform: translate3d(0, 0, 0);
-    transition: transform 0.5s var(--vkui_internal_ModalPageDocument--slide-easing) 0.1s;
+    transition: transform 0.5s var(--vkui_internal--slide-easing) 0.1s;
   }
 
   .documentStateExiting {

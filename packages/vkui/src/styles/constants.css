@@ -43,6 +43,8 @@
 
   /* animations */
   --vkui_internal--duration: 0.7s;
+  --vkui_internal--slide-easing: cubic-bezier(0.16, 1, 0.3, 1);
+  --vkui_internal--spring-easing: cubic-bezier(0.22, 1, 0.6, 1.03);
 
   /* z_index */
   --vkui_internal--z_index_cell_dragging: 100;

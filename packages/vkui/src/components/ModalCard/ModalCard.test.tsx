@@ -1,4 +1,4 @@
-import { render, screen } from '@testing-library/react';
+import { fireEvent, render, screen } from '@testing-library/react';
 import { baselineComponent, waitCSSTransitionEnd } from '../../testing/utils';
 import { ConfigProvider } from '../ConfigProvider/ConfigProvider';
 import { ModalCard } from './ModalCard';
@@ -6,6 +6,9 @@ import { ModalCard } from './ModalCard';
 export const waitModalCardCSSTransitionEnd = async (el: HTMLElement) =>
   await waitCSSTransitionEnd(el);
 
+/**
+ * Большинство логики покрыто в `ModalRoot.test.tsx`
+ */
 describe(ModalCard, () => {
   baselineComponent((p) => <ModalCard open nav="id" {...p} />, {
     // TODO [a11y]: "ARIA dialog and alertdialog nodes should have an accessible name (aria-dialog-name)"
@@ -27,12 +30,13 @@ describe(ModalCard, () => {
   });
 
   test('testid for modal card content', async () => {
-    const result = render(<ModalCard open nav="host" data-testid="host" />);
+    const result = render(<ModalCard key="host" nav="host" open data-testid="host" />);
     await waitModalCardCSSTransitionEnd(result.getByTestId('host'));
     expect(result.queryByTestId('modal-dismiss-button')).not.toBeTruthy();
 
     result.rerender(
       <ModalCard
+        key="host"
         nav="id"
         open
         data-testid="host"
@@ -45,6 +49,7 @@ describe(ModalCard, () => {
     result.rerender(
       <ConfigProvider platform="vkcom">
         <ModalCard
+          key="host"
           nav="host"
           open
           data-testid="host"
@@ -82,5 +87,43 @@ describe(ModalCard, () => {
     await waitModalCardCSSTransitionEnd(result.getByTestId('host'));
     expect(screen.getByText('Баскетбол на выходных').tagName.toLowerCase()).toMatch('h2');
     expect(screen.getByText('Приглашение в беседу').tagName.toLowerCase()).toMatch('h3');
+  });
+
+  it('should hides close button by dismissButtonMode prop', async () => {
+    const onClose = jest.fn();
+    const h = render(
+      <ModalCard
+        key="host"
+        id="host"
+        open
+        dismissButtonMode="none"
+        modalDismissButtonTestId="dismiss-button"
+        data-testid="host"
+        onClose={onClose}
+      />,
+    );
+    await waitModalCardCSSTransitionEnd(h.getByTestId('host'));
+    expect(h.queryByTestId('dismiss-button')).toBeFalsy();
+    expect(onClose).toHaveBeenCalledTimes(0);
+  });
+
+  test('click on close button', async () => {
+    const onClose = jest.fn();
+    const h = render(
+      <ConfigProvider platform="vkcom">
+        <ModalCard
+          key="host"
+          id="host"
+          open
+          modalDismissButtonTestId="dismiss-button"
+          data-testid="host"
+          onClose={onClose}
+        />
+      </ConfigProvider>,
+    );
+    await waitModalCardCSSTransitionEnd(h.getByTestId('host'));
+    fireEvent.click(h.getByTestId('dismiss-button'));
+    expect(onClose).toHaveBeenCalledTimes(1);
+    expect(onClose).toHaveBeenCalledWith('click-close-button');
   });
 });

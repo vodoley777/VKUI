@@ -10,6 +10,11 @@ import { ModalRoot } from './ModalRoot';
 
 fakeTimers();
 
+const waitCSSTransitionEndConditionally = async (el: HTMLElement, displayName: string) =>
+  displayName === 'ModalPage'
+    ? await waitModalPageCSSTransitionEnd(el)
+    : await waitModalCardCSSTransitionEnd(el);
+
 describe(ModalRoot, () => {
   baselineComponent(ModalRoot, { forward: false, a11y: false, getRootRef: false });
 
@@ -17,11 +22,6 @@ describe(ModalRoot, () => {
     { displayName: 'ModalPage', Component: ModalPage },
     { displayName: 'ModalCard', Component: ModalCard },
   ])('With $displayName', ({ displayName, Component }) => {
-    const waitCSSTransitionEndConditionally = async (el: HTMLElement) =>
-      displayName === 'ModalPage'
-        ? await waitModalPageCSSTransitionEnd(el)
-        : await waitModalCardCSSTransitionEnd(el);
-
     test.each(['global', 'local'])('mount and unmount (should use %s callbacks)', async (type) => {
       const globalCallbacks = { onOpen: jest.fn(), onOpened: jest.fn(), onClose: jest.fn(), onClosed: jest.fn() }; // prettier-ignore
       const localCallbacks = { onOpen: jest.fn(), onOpened: jest.fn(), onClose: jest.fn(), onClosed: jest.fn() }; // prettier-ignore
@@ -35,7 +35,7 @@ describe(ModalRoot, () => {
           )}
         </ModalRoot>,
       );
-      await waitCSSTransitionEndConditionally(h.getByTestId('m'));
+      await waitCSSTransitionEndConditionally(h.getByTestId('m'), displayName);
       expect(h.getByTestId('m')).toBeInTheDocument();
 
       h.rerender(
@@ -47,7 +47,7 @@ describe(ModalRoot, () => {
           )}
         </ModalRoot>,
       );
-      await waitCSSTransitionEndConditionally(h.getByTestId('m'));
+      await waitCSSTransitionEndConditionally(h.getByTestId('m'), displayName);
       expect(h.queryByTestId('m')).not.toBeInTheDocument();
 
       if (type === 'global') {
@@ -87,7 +87,7 @@ describe(ModalRoot, () => {
           <Component id="m" open data-testid="m" />
         </ModalRoot>,
       );
-      await waitCSSTransitionEndConditionally(h.getByTestId('m'));
+      await waitCSSTransitionEndConditionally(h.getByTestId('m'), displayName);
       expect(h.queryByTestId('m')).toBeInTheDocument();
     });
 
@@ -147,29 +147,33 @@ describe(ModalRoot, () => {
     });
   });
 
-  describe('handle onClose', () => {
+  describe.each([
+    { displayName: 'ModalPage', Component: ModalPage },
+    { displayName: 'ModalCard', Component: ModalCard },
+  ])('handle onClose', ({ displayName, Component }) => {
     describe('on fade click', () => {
       it('calls modal onClose', async () => {
         const onClose = jest.fn();
         const onCloseRoot = jest.fn();
         const h = render(
           <ModalRoot onClose={onCloseRoot} activeModal="m">
-            <ModalPage id="m" data-testid="m" modalOverlayTestId="overlay" onClose={onClose} />
+            <Component id="m" data-testid="m" modalOverlayTestId="overlay" onClose={onClose} />
           </ModalRoot>,
         );
-        await waitModalPageCSSTransitionEnd(h.getByTestId('m'));
+        await waitCSSTransitionEndConditionally(h.getByTestId('m'), displayName);
         fireEvent.click(h.getByTestId('overlay'));
         expect(onClose).toHaveBeenCalledTimes(1);
+        expect(onClose).toHaveBeenCalledWith('click-overlay', expect.any(Object));
         expect(onCloseRoot).not.toHaveBeenCalled();
       });
       it('calls root onClose if modal has no onClose', async () => {
         const onCloseRoot = jest.fn();
         const h = render(
           <ModalRoot onClose={onCloseRoot} activeModal="m">
-            <ModalPage id="m" data-testid="m" modalOverlayTestId="overlay" />
+            <Component id="m" data-testid="m" modalOverlayTestId="overlay" />
           </ModalRoot>,
         );
-        await waitModalPageCSSTransitionEnd(h.getByTestId('m'));
+        await waitCSSTransitionEndConditionally(h.getByTestId('m'), displayName);
         fireEvent.click(h.getByTestId('overlay'));
         expect(onCloseRoot).toHaveBeenCalledTimes(1);
       });
@@ -177,10 +181,10 @@ describe(ModalRoot, () => {
         const onCloseRoot = jest.fn();
         const h = render(
           <ModalRoot onClose={onCloseRoot} activeModal="m">
-            <ModalPage preventClose id="m" data-testid="m" modalOverlayTestId="overlay" />
+            <Component preventClose id="m" data-testid="m" modalOverlayTestId="overlay" />
           </ModalRoot>,
         );
-        await waitModalPageCSSTransitionEnd(h.getByTestId('m'));
+        await waitCSSTransitionEndConditionally(h.getByTestId('m'), displayName);
         fireEvent.click(h.getByTestId('overlay'));
         fireEvent.keyDown(h.getByTestId('m'), { key: 'Escape', code: 'Escape' });
         expect(onCloseRoot).not.toHaveBeenCalled();
@@ -190,10 +194,10 @@ describe(ModalRoot, () => {
       const onCloseRoot = jest.fn();
       const h = render(
         <ModalRoot onClose={onCloseRoot} activeModal="m">
-          <ModalPage id="m" data-testid="m" />
+          <Component id="m" data-testid="m" />
         </ModalRoot>,
       );
-      await waitModalPageCSSTransitionEnd(h.getByTestId('m'));
+      await waitCSSTransitionEndConditionally(h.getByTestId('m'), displayName);
       fireEvent.keyDown(h.getByTestId('m'), { key: 'Escape', code: 'Escape' });
       expect(onCloseRoot).toHaveBeenCalledTimes(1);
     });
