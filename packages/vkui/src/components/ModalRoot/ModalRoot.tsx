@@ -61,7 +61,11 @@ export const ModalRoot = ({
   return (
     <ModalRootContext.Provider value={contextValue}>
       <ModalRootOverlayContext.Provider value={modalOverlayRef}>
-        <ModalOverlay visible={typeof activeModal === 'string'} getRootRef={modalOverlayRef} />
+        <ModalOverlay
+          position="fixed"
+          visible={typeof activeModal === 'string'}
+          getRootRef={modalOverlayRef}
+        />
         {children}
       </ModalRootOverlayContext.Provider>
     </ModalRootContext.Provider>
