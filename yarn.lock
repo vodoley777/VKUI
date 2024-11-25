@@ -4360,14 +4360,14 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@vkontakte/icons@npm:^2.115.0":
-  version: 2.154.0
-  resolution: "@vkontakte/icons@npm:2.154.0"
+"@vkontakte/icons@npm:^2.155.0":
+  version: 2.155.0
+  resolution: "@vkontakte/icons@npm:2.155.0"
   dependencies:
     "@vkontakte/icons-sprite": "npm:2.3.0"
   peerDependencies:
     react: ^16.9.34 || ^17 || ^18
-  checksum: 10/7583221bdb7bbe7e1d2e8c3dcf197e063db45b19cb808dd4e0d1c11583a0b66dd95880388fceb56c02aa00daf47b19fae5198ef0fd32a8afa17a90e23ed421d2
+  checksum: 10/4c8761b0050a5cb1152ee4a0913f235e734c907d34c6a6aa2e9bb9ffdaef958828ae3d1092dd9c95c91a708b0a1c1e060fff26dea7463cfb9563f6118c16868c
   languageName: node
   linkType: hard
 
@@ -4596,7 +4596,7 @@ __metadata:
     "@storybook/react-webpack5": "npm:8.4.5"
     "@swc/helpers": "npm:^0.5.15"
     "@types/node": "npm:*"
-    "@vkontakte/icons": "npm:^2.115.0"
+    "@vkontakte/icons": "npm:^2.155.0"
     "@vkontakte/vkjs": "npm:^2.0.1"
     "@vkontakte/vkui-floating-ui": "npm:^0.2.3"
     date-fns: "npm:^4.1.0"
