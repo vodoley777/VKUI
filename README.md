@@ -5,6 +5,7 @@
       <img src="https://raw.githubusercontent.com/VKCOM/VKUI/d72dcc219bc4b441b2740b69d9343aea14d66c7f/docs/assets/vkui-logo-dark.svg" width="150" alt="VKUI logo" />
     </picture>
   </a>
+  t
 </h1>
 <p align="center">
   <a href="LICENSE"><img src="https://img.shields.io/npm/l/@vkontakte/vkui?maxAge=3600" alt="license mit"></a>
