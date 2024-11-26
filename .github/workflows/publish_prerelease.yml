@@ -3,13 +3,27 @@ on:
   workflow_dispatch:
 
 jobs:
-  upload-artifact:
+  create-and-upload-artifact:
     runs-on: ubuntu-latest
+
     steps:
-    - name: Check if next-version.txt exists
-      run: |
-        if [ -f $GITHUB_WORKSPACE/publish_workflow_payload/next-version.txt ]; then
-          echo "File exists!"
-        else
-          echo "File not found!"
-        fi
+      - name: Create directory and file with content
+        run: |
+          mkdir -p publish_workflow_payload
+          echo "testnextversion" > publish_workflow_payload/next-version.txt
+
+      # Шаг 2: Проверка, что файл был создан
+      - name: Check if next-version.txt exists
+        run: |
+          if [ -f ./publish_workflow_payload/next-version.txt ]; then
+            echo "File exists!"
+          else
+            echo "File not found!"
+          fi
+
+      # Шаг 3: Загружаем файл как артефакт
+      - name: Upload artifact
+        uses: actions/upload-artifact@v3
+        with:
+          name: next-version
+          path: ./publish_workflow_payload/next-version.txt
