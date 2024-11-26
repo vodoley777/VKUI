@@ -11,4 +11,4 @@ jobs:
         uses: actions/upload-artifact@v3
         with:
           name: package_name
-          path: publish_workflow_payload/next-version.txt
+          path: ./publish_workflow_payload/next-version.txt
