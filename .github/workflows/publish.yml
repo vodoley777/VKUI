@@ -3,12 +3,16 @@ on:
   workflow_dispatch:
 
 jobs:
-  upload-artifact:
+  create-and-upload-artifact:
     runs-on: ubuntu-latest
-    steps:
 
+    steps:
+      - name: Create nextversion
+        run: |
+           echo "testpackagename" > publish_workflow_payload/package-name.txt
+           
       - name: Upload artifact
         uses: actions/upload-artifact@v4
         with:
           name: publish_workflow_payload
-          path: publish_workflow_payload/
+          path: ./publish_workflow_payload/next-version.txt
