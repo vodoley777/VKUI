@@ -9,5 +9,5 @@ jobs:
       - name: Upload artifact
         uses: actions/upload-artifact@v3
         with:
-          name: package_name
+          name: publish_workflow_payload
           path: ./publish_workflow_payload/package_name.txt
