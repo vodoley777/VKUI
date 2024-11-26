@@ -16,7 +16,7 @@ VKUI — это библиотека адаптивных React-компонен
 Релизы: <a href="https://github.com/VKCOM/VKUI/releases">https://github.com/VKCOM/VKUI/releases</a>.<br>
 Гайд по миграции <a href="https://vkcom.github.io/VKUI/#/Migrations">на версию 6</a>.
 </p>
-
+test
 ## Установка
 
 **npm:**
