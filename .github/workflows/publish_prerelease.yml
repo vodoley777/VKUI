@@ -7,23 +7,15 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Create directory and file with content
+      - name: Create nextversion
         run: |
           mkdir -p publish_workflow_payload
           echo "testnextversion" > publish_workflow_payload/next-version.txt
 
-      # Шаг 2: Проверка, что файл был создан
-      - name: Check if next-version.txt exists
-        run: |
-          if [ -f ./publish_workflow_payload/next-version.txt ]; then
-            echo "File exists!"
-          else
-            echo "File not found!"
-          fi
-
+     
       # Шаг 3: Загружаем файл как артефакт
       - name: Upload artifact
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
-          name: next-version
+          name: publish_workflow_payload
           path: ./publish_workflow_payload/next-version.txt
