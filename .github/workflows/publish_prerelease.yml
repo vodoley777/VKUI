@@ -5,7 +5,6 @@ on:
 jobs:
   create-files-and-upload-artifacts:
     runs-on: ubuntu-latest
-
     steps:
       - name: Create directory publish_workflow_payload
         run: |
@@ -19,9 +18,12 @@ jobs:
         run: |
           echo "testpackagename" > publish_workflow_payload/package-name.txt
 
-
       - name: Upload artifacts
         uses: actions/upload-artifact@v4
         with:
           name: publish_workflow_payload
           path: ./publish_workflow_payload/
+          
+      - name: Output run-id
+        run: |
+          echo "Run ID: ${{ github.run_id }}"
