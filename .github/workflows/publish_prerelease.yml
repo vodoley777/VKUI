@@ -8,7 +8,7 @@ jobs:
     steps:
     - name: Check if next-version.txt exists
       run: |
-        if [ -f ./publish_workflow_payload/next-version.txt ]; then
+        if [ -f $GITHUB_WORKSPACE/publish_workflow_payload/next-version.txt ]; then
           echo "File exists!"
         else
           echo "File not found!"
