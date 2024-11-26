@@ -3,19 +3,25 @@ on:
   workflow_dispatch:
 
 jobs:
-  create-and-upload-artifact:
+  create-files-and-upload-artifacts:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Create nextversion
+      - name: Create directory publish_workflow_payload
         run: |
           mkdir -p publish_workflow_payload
-          echo "testnextversion" > publish_workflow_payload/next-version.txt
 
-     
-      # Шаг 3: Загружаем файл как артефакт
-      - name: Upload artifact
-        uses: actions/upload-artifact@v4
+      - name: Create next-version.txt and add content
+        run: |
+          echo "testnextverison" > publish_workflow_payload/next-version.txt
+
+      - name: Create package-name.txt and add content
+        run: |
+          echo "testpackagename" > publish_workflow_payload/package-name.txt
+
+
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v3
         with:
           name: publish_workflow_payload
-          path: ./publish_workflow_payload/next-version.txt
+          path: ./publish_workflow_payload/
