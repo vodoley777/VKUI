@@ -12,11 +12,11 @@ jobs:
 
       - name: Create next-version.txt and add content
         run: |
-          echo "testnextverison" > publish_workflow_payload/next-version.txt
+          echo "22" > publish_workflow_payload/next-version.txt
 
       - name: Create package-name.txt and add content
         run: |
-          echo "testpackagename" > publish_workflow_payload/package-name.txt
+          echo "@vkontakte/vkui" > publish_workflow_payload/package-name.txt
 
       - name: Upload artifacts
         uses: actions/upload-artifact@v4
