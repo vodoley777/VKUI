@@ -11,22 +11,19 @@ jobs:
         run: |
           mkdir -p publish_workflow_payload
 
-      - name: Create package-name.txt and next-version.txt
+      - name: Prepare payload data
         run: |
-          echo @vkontakte/vkui > publish_workflow_payload/package-name.txt
-          echo testnextversion > publish_workflow_payload/next-version.txt
-          echo beta > publish_workflow_payload/npm_tag.txt
-          echo v7.0.0-dev-efd91c.4 > publish_workflow_payload/git_release_tag.txt
-          echo false > publish_workflow_payload/close_milestone.txt
+          mkdir -p publish_workflow_payload
+          echo "testvers" > publish_workflow_payload/next_version.txt
+          echo "@vkontakte/vkui" > publish_workflow_payload/package_name.txt
+          echo "testtag" > publish_workflow_payload/npm_tag.txt
+          echo "testrealesetag" > publish_workflow_payload/git_release_tag.txt
+          echo "testmilestone" > publish_workflow_payload/close_milestone.txt
+        shell: bash
 
-      - name: Verify files exist
-        run: |
-          ls -la publish_workflow_payload/
-          cat publish_workflow_payload/package-name.txt
-          cat publish_workflow_payload/next-version.txt
-
-      - name: Upload artifacts
+      - name: Upload payload data to artifact for deploy workflow
         uses: actions/upload-artifact@v4
         with:
           name: publish_workflow_payload
           path: publish_workflow_payload/
+          retention-days: 1
