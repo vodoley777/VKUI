@@ -25,5 +25,5 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: publish_workflow_payload
-          path: publish_workflow_payload/
+          path: publish_workflow_payload
           retention-days: 1
