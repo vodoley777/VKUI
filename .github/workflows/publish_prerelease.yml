@@ -13,8 +13,11 @@ jobs:
 
       - name: Create package-name.txt and next-version.txt
         run: |
-          echo "@vkontakte/vkui" > publish_workflow_payload/package-name.txt
-          echo "testnextversion" > publish_workflow_payload/next-version.txt
+          echo @vkontakte/vkui > publish_workflow_payload/package-name.txt
+          echo testnextversion > publish_workflow_payload/next-version.txt
+          echo beta > publish_workflow_payload/npm_tag.txt
+          echo v7.0.0-dev-efd91c.4 > publish_workflow_payload/git_release_tag.txt
+          echo false > publish_workflow_payload/close_milestone.txt
 
       - name: Verify files exist
         run: |
@@ -23,7 +26,7 @@ jobs:
           cat publish_workflow_payload/next-version.txt
 
       - name: Upload artifacts
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: publish_workflow_payload
           path: publish_workflow_payload/
